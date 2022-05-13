@@ -11,3 +11,4 @@ k3s agent \
   --token ${NODE_TOKEN} \
   --flannel-backend "host-gw" \
   > /dev/null 2>&1 &
+
