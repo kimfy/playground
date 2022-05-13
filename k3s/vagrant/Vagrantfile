@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+  config.vm.provision "shell", path: "bootstrap.sh"
+  # Kubernetes Worker Nodes
+  MasterNodeCount = 1
+  (1..MasterNodeCount).each do |i|
+    config.vm.define "master#{i}" do |node|
+    
+      node.vm.box               = "generic/ubuntu2004"
+      node.vm.box_check_update  = false
+      node.vm.box_version       = "3.3.0"
+      node.vm.hostname          = "master#{i}.k3s.lab.wwan.no"
+
+      node.vm.network "private_network", ip: "192.168.56.10#{i}"
+      if i == 1
+        node.vm.network "forwarded_port", guest: 6443, host: "6443"
+      end
+    
+      node.vm.provider :virtualbox do |v|
+        v.name    = "master#{i}"
+        v.memory  = 2048
+        v.cpus    =  2
+      end
+    
+      node.vm.provision "shell", path: "bootstrap_master.sh", :args => ["master#{i}.k3s.lab.wwan.no", "192.168.56.10#{i}"]
+    end
+  end
+  # k3s Master Server
+
+  # Kubernetes Worker Nodes
+  NodeCount = 1
+  (1..NodeCount).each do |i|
+    config.vm.define "worker#{i}" do |node|
+
+      node.vm.box               = "generic/ubuntu2004"
+      node.vm.box_check_update  = false
+      node.vm.box_version       = "3.3.0"
+      node.vm.hostname          = "worker#{i}.k3s.lab.wwan.no"
+
+      node.vm.network "private_network", ip: "192.168.56.12#{i}"
+
+      node.vm.provider :virtualbox do |v|
+        v.name    = "worker#{i}"
+        v.memory  = 1024
+        v.cpus    = 1
+      end
+
+      node.vm.provision "shell", path: "bootstrap_worker.sh", :args => ["worker#{i}.k3s.lab.wwan.no", "192.168.56.12#{i}", "master1.k3s.lab.wwan.no"]
+
+    end
+  end
+end

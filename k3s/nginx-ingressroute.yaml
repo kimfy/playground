@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-test
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/nginx`)
+      services:
+        - kind:
+          name: nginx-1652446074
+          namespace: default
+          port: 80
+      middlewares:
+      - name: test-stripprefix
+        namespace: default
