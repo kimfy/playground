@@ -1,0 +1,72 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+require 'ipaddr'
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+domain = "hashicorp.lab.wwan.no"
+consul_internal_domain = "consul.#{domain}"
+
+server_node_count = 3
+client_node_count = 0
+
+ip_start_servers = "192.168.56.101"
+ip_start_clients = "192.168.56.201"
+server_ip_address = IPAddr.new ip_start_servers
+client_ip_address = IPAddr.new ip_start_clients
+
+vagrant_box_name = "generic/ubuntu2110"
+vagrant_box_version = "3.6.14"
+vagrant_box_check_update = false 
+
+Vagrant.configure(2) do |config|
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  (1..server_node_count).each do |i|
+    
+    name = "server#{i}"
+    fqdn = "#{name}.#{domain}"
+    ip_address = server_ip_address.to_s; server_ip_address = server_ip_address.succ
+    
+    config.vm.define name do |node|
+      node.vm.box               = vagrant_box_name
+      node.vm.box_version       = vagrant_box_version
+      node.vm.box_check_update  = vagrant_box_check_update
+      node.vm.hostname          = fqdn
+      node.vm.network "private_network", ip: ip_address
+
+      node.vm.provider :virtualbox do |v|
+        v.name = name
+        v.memory  = 2048
+        v.cpus    =  2
+      end
+
+      node.vm.provision "shell", path: "bootstrap_server.sh", :args => [fqdn, ip_address, ip_start_servers, consul_internal_domain, server_node_count]
+    end
+  end
+
+  (1..client_node_count).each do |i|
+
+    name = "client#{i}"
+    fqdn = "#{name}.#{domain}"
+    ip_address = client_ip_address.to_s; client_ip_address = client_ip_address.succ
+
+    config.vm.define name do |node|
+      node.vm.box               = vagrant_box_name
+      node.vm.box_version       = vagrant_box_version
+      node.vm.box_check_update  = vagrant_box_check_update
+      node.vm.hostname          = fqdn
+      node.vm.network "private_network", ip: ip_address
+
+      node.vm.provider :virtualbox do |v|
+        v.name = name
+        v.memory  = 2048
+        v.cpus    = 2
+      end
+
+      node.vm.provision "shell", path: "bootstrap_client.sh", :args => [fqdn]
+    end
+  end
+end
+
