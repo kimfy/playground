@@ -1,2 +1,3 @@
-# Personal space for all things Kubernetes
+# Playground
 
+Personal space for storing configurations, source code etc for stuff I test
