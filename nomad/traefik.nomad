@@ -58,7 +58,7 @@ job "traefik" {
     exposedByDefault = false
 
     [providers.consulCatalog.endpoint]
-      address = "127.0.0.1:8500"
+      address = "consul.hashicorp.lab.wwan.no:8500"
       scheme  = "http"
 EOF
 

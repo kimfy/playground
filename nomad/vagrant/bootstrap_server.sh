@@ -4,6 +4,8 @@ FIRST_CONSUL_SERVER_IP=$3
 CONSUL_INTERNAL_DOMAIN=$4
 BOOTSTRAP_EXPECT=$5
 
+header = "**********"
+echo "$header START: Consul $header"
 echo "[TASK 1] Configure Consul (server)"
 cat << EOF > /etc/consul.d/server.hcl
 # server
@@ -69,3 +71,49 @@ systemctl start consul
 # 192.168.56.101  consul.hashicorp.lab.wwan.no  consul
 echo "$FIRST_CONSUL_SERVER_IP $CONSUL_INTERNAL_DOMAIN consul" >> /etc/hosts
 
+echo "$header END: Consul $header"
+
+echo "$header START: Nomad $header"
+echo "[TASK 1] Configure Nomad"
+# Delete all defaults
+rm /etc/nomad.d/*.hcl > /dev/null 2&>1
+
+# Insert config
+cat << EOF > /etc/nomad.d/server.hcl
+data_dir  = "/opt/nomad"
+bind_addr = "$IP_ADDRESS" 
+
+advertise {
+  # Defaults to the first private IP address.
+  http = "$IP_ADDRESS"
+  rpc  = "$IP_ADDRESS"
+  serf = "$IP_ADDRESS:5648" # non-default ports may be specified
+}
+
+server {
+  enabled = true
+  bootstrap_expect = $BOOTSTRAP_EXPECT
+}
+
+client {
+  enabled = false
+}
+
+plugin "raw_exec" {
+  config {
+    enabled = true
+  }
+}
+
+consul {
+  address = "$CONSUL_INTERNAL_DOMAIN:8500"
+}
+
+ui {
+  enabled =  true
+}
+EOF
+
+echo "[TASK 2] Start Nomad service"
+systemctl enable nomad
+systemctl start nomad
