@@ -1,0 +1,38 @@
+---
+- name: Server provisioning
+  hosts: all
+  tasks:
+  - name: Configure Consul server settings
+    ansible.builtin.template:
+      src: ../consul/server/etc/consul.d/server.hcl.j2
+      dest: /etc/consul.d/server.hcl
+      owner: root
+      group: root
+
+  - name: Enable and start consul.service
+    ansible.builtin.service:
+      name: consul
+      state: started
+      enabled: true
+
+  # This task makes it so the first server resolves to the domain provided
+  - name: Configure hosts file
+    ansible.builtin.lineinfile:
+      dest: /etc/hosts
+      regexp: '.*{{ IP_START_SERVERS }}$'
+      line: "{{ IP_START_SERVERS }} {{ CONSUL_INTERNAL_DOMAIN }} consul"
+      state: present
+
+  - name: Configure Nomad server settings
+    ansible.builtin.template:
+      src: ../nomad/server/etc/nomad.d/server.hcl.j2
+      dest: /etc/nomad.d/server.hcl
+      owner: root
+      group: root
+
+  - name: Enable and start nomad.service
+    ansible.builtin.service:
+      name: nomad
+      state: started
+      enabled: true
+

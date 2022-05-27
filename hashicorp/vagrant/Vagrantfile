@@ -9,7 +9,7 @@ domain = "hashicorp.lab.wwan.no"
 consul_internal_domain = "consul.#{domain}"
 
 server_node_count = 1
-client_node_count = 1
+client_node_count = 0
 
 ip_start_servers = "192.168.56.101"
 ip_start_clients = "192.168.56.201"
@@ -21,10 +21,14 @@ vagrant_box_version = "3.6.14"
 vagrant_box_check_update = false 
 
 Vagrant.configure(2) do |config|
-  config.vm.provision "shell", path: "bootstrap.sh"
+  # Common configuration
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "playbook.yml"
+    ansible.verbose = true
+    ansible.become = true
+  end
 
   (1..server_node_count).each do |i|
-    
     name = "server#{i}"
     fqdn = "#{name}.#{domain}"
     ip_address = server_ip_address.to_s; server_ip_address = server_ip_address.succ
@@ -42,7 +46,20 @@ Vagrant.configure(2) do |config|
         v.cpus    =  2
       end
 
-      node.vm.provision "shell", path: "bootstrap_server.sh", :args => [fqdn, ip_address, ip_start_servers, consul_internal_domain, server_node_count]
+      config.vm.provision :ansible do |ansible|
+        ansible.playbook = "playbook-server.yml"
+        ansible.verbose = true
+        ansible.become = true
+        ansible.host_vars = {
+          "#{name}" => {
+            "FQDN" => fqdn,
+            "IP_ADDRESS" => ip_address,
+            "IP_START_SERVERS" => ip_start_servers,
+            "CONSUL_INTERNAL_DOMAIN" => consul_internal_domain,
+            "BOOTSTRAP_EXPECT" => server_node_count
+          }
+        }
+      end
     end
   end
 
@@ -65,7 +82,19 @@ Vagrant.configure(2) do |config|
         v.cpus    = 2
       end
 
-      node.vm.provision "shell", path: "bootstrap_client.sh", :args => [fqdn, ip_address, ip_start_servers, consul_internal_domain]
+      config.vm.provision :ansible do |ansible|
+        ansible.playbook = "playbook-client.yml"
+        ansible.verbose = true
+        ansible.become = true
+        ansible.host_vars = {
+          "#{name}" => {
+            "FQDN" => fqdn,
+            "IP_ADDRESS" => ip_address,
+            "IP_START_SERVERS" => ip_start_servers,
+            "CONSUL_INTERNAL_DOMAIN" => consul_internal_domain
+          }
+        }
+      end
     end
   end
 end

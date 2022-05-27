@@ -1,0 +1,69 @@
+---
+- name: Install Software
+  hosts: all
+  tasks:
+
+  - name: Install HashiCorp Key
+    ansible.builtin.apt_key:
+      url: https://apt.releases.hashicorp.com/gpg
+      state: present
+
+  - name: Add HashiCorp Repository
+    ansible.builtin.apt_repository:
+      repo: 'deb [arch=amd64] https://apt.releases.hashicorp.com impish main'
+      state: present
+
+  - name: Install HashiCorp Consul, Nomad
+    ansible.builtin.apt:
+      pkg:
+      - consul
+      - nomad
+      state: present
+
+  - name: Configure consul.service
+    ansible.builtin.template:
+      src: ../consul/common/lib/systemd/system/consul.service.j2
+      dest: /lib/systemd/system/consul.service
+      owner: root
+      group: root
+
+  - name: Configure common Consul settings
+    ansible.builtin.template:
+      src: ../consul/common/etc/consul.d/consul.hcl.j2
+      dest: /etc/consul.d/consul.hcl
+      owner: vagrant
+      group: vagrant
+      mode: u=rw,g=r,o=r
+      follow: yes
+
+  - name: Create systemd-resolved directory if not exists
+    ansible.builtin.file:
+      path: /etc/systemd/resolved.conf.d/
+      state: directory
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r
+
+  - name: Configure systemd-resolved for Consul
+    ansible.builtin.template:
+      src: ../consul/common/etc/systemd/resolved.conf.d/consul.conf.j2
+      dest: /etc/systemd/resolved.conf.d/consul.conf
+      owner: vagrant
+      group: vagrant
+      mode: u=rw,g=r,o=r
+      follow: yes
+
+  - name: Restart systemd-resolved
+    ansible.builtin.service:
+      name: systemd-resolved
+      state: restarted
+
+#################################
+# NOMAD
+#################################
+  - name: Configure nomad.service
+    ansible.builtin.template:
+      src: ../nomad/common/lib/systemd/system/nomad.service.j2
+      dest: /lib/systemd/system/nomad.service
+      owner: root
+      group: root
