@@ -9,6 +9,15 @@
 # other datacenters and forward traffic as appropriate.
 server = false
 
+# Bind addr
+# You may use IPv4 or IPv6 but if you have multiple interfaces you must be explicit.
+#bind_addr = "[::]" # Listen on all IPv6
+#bind_addr = "0.0.0.0" # Listen on all IPv4
+bind_addr = "{{ IP_ADDRESS }}" # Bind to IP address given in Vagrantfile
+
+# Advertise addr - if you want to point clients to a different address than bind or LB.
+#advertise_addr = "0.0.0.0"
+
 # retry_join
 # Similar to -join but allows retrying a join until it is successful. Once it joins 
 # successfully to a member in a list of members it will never attempt to join again.
@@ -28,5 +37,4 @@ server = false
 #retry_join = ["provider=aws tag_key=... tag_value=..."]
 #retry_join = ["provider=azure tag_name=... tag_value=... tenant_id=... client_id=... subscription_id=... secret_access_key=..."]
 #retry_join = ["provider=gce project_name=... tag_value=..."]
-retry_join = ["consul.lab.wwan.no"]
- 
+retry_join = ["{{ CONSUL_INTERNAL_DOMAIN }}"]
