@@ -1,6 +1,6 @@
 ---
 - name: Client provisioning
-  hosts: all
+  hosts: client*
   tasks:
   - name: Configure Consul client settings
     ansible.builtin.template:
@@ -26,7 +26,7 @@
   - name: Configure Nomad client settings
     ansible.builtin.template:
       src: ../nomad/client/etc/nomad.d/client.hcl.j2
-      dest: /etc/nomad.d/client.hcl
+      dest: /etc/nomad.d/nomad.hcl
       owner: root
       group: root
 
@@ -36,3 +36,41 @@
       state: started
       enabled: true
 
+  - name: Ensure Docker pre-requisites are present
+    ansible.builtin.apt:
+      pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      state: present
+
+  - name: Ensure keyrings directory exists
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      state: directory
+      owner: root
+      group: root
+      mode: u=rwx,g=rx,o=rx
+
+  - name: Ensure Docker GPG key exists
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      keyring: /etc/apt/keyrings/docker.gpg
+      state: present
+
+  - name: Ensure Docker repository exists in sources.list
+    ansible.builtin.apt_repository:
+      repo: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu impish stable'
+      filename: docker.list
+      state: present
+
+  - name: Ensure Docker and recommended Docker tools are present
+    ansible.builtin.apt:
+      pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      update_cache: yes
+      state: present

@@ -9,7 +9,7 @@ domain = "hashicorp.lab.wwan.no"
 consul_internal_domain = "consul.#{domain}"
 
 server_node_count = 1
-client_node_count = 0
+client_node_count = 1
 
 ip_start_servers = "192.168.56.101"
 ip_start_clients = "192.168.56.201"
@@ -81,7 +81,7 @@ Vagrant.configure(2) do |config|
         v.memory  = 2048
         v.cpus    = 2
       end
-
+      print ip_address
       config.vm.provision :ansible do |ansible|
         ansible.playbook = "playbook-client.yml"
         ansible.verbose = true

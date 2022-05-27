@@ -1,6 +1,6 @@
 ---
 - name: Server provisioning
-  hosts: all
+  hosts: server*
   tasks:
   - name: Configure Consul server settings
     ansible.builtin.template:
