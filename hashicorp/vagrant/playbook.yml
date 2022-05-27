@@ -58,9 +58,6 @@
       name: systemd-resolved
       state: restarted
 
-#################################
-# NOMAD
-#################################
   - name: Configure nomad.service
     ansible.builtin.template:
       src: ../nomad/common/lib/systemd/system/nomad.service.j2
