@@ -26,14 +26,14 @@
   - name: Configure Nomad client settings
     ansible.builtin.template:
       src: ../nomad/client/etc/nomad.d/client.hcl.j2
-      dest: /etc/nomad.d/nomad.hcl
+      dest: /etc/nomad.d/client.hcl
       owner: root
       group: root
 
-  - name: Enable and start nomad.service
+  - name: Ensure Nomad is restarted
     ansible.builtin.service:
       name: nomad
-      state: started
+      state: restarted
       enabled: true
 
   - name: Ensure Docker pre-requisites are present

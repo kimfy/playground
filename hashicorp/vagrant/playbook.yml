@@ -64,3 +64,12 @@
       dest: /lib/systemd/system/nomad.service
       owner: root
       group: root
+
+  - name: Configure common Nomad settings
+    ansible.builtin.template:
+      src: ../nomad/common/etc/nomad.d/nomad.hcl.j2
+      dest: /etc/nomad.d/nomad.hcl
+      owner: vagrant
+      group: vagrant
+      mode: u=rw,g=r,o=r
+      follow: yes

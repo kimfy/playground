@@ -12,7 +12,7 @@
   - name: Enable and start consul.service
     ansible.builtin.service:
       name: consul
-      state: started
+      state: restarted
       enabled: true
 
   # This task makes it so the first server resolves to the domain provided
@@ -30,9 +30,9 @@
       owner: root
       group: root
 
-  - name: Enable and start nomad.service
+  - name: Ensure Nomad is restarted
     ansible.builtin.service:
       name: nomad
-      state: started
+      state: restarted
       enabled: true
 
