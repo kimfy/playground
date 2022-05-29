@@ -73,3 +73,4 @@
       group: vagrant
       mode: u=rw,g=r,o=r
       follow: yes
+

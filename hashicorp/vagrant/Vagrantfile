@@ -21,13 +21,6 @@ vagrant_box_version = "3.6.14"
 vagrant_box_check_update = false 
 
 Vagrant.configure(2) do |config|
-  # Common configuration
-  config.vm.provision :ansible do |ansible|
-    ansible.playbook = "playbook.yml"
-    ansible.verbose = true
-    ansible.become = true
-  end
-
   (1..server_node_count).each do |i|
     name = "server#{i}"
     fqdn = "#{name}.#{domain}"
@@ -46,6 +39,19 @@ Vagrant.configure(2) do |config|
         v.cpus    =  2
       end
 
+      # Common configuration
+      node.vm.provision :ansible do |ansible|
+        ansible.playbook = "playbook.yml"
+        ansible.verbose = true
+        ansible.become = true
+        ansible.host_vars = {
+          "#{name}" => {
+            "IP_ADDRESS" => ip_address
+          }
+        }
+      end
+
+      # Server configuration
       node.vm.provision :ansible do |ansible|
         ansible.playbook = "playbook-server.yml"
         ansible.verbose = true
@@ -81,7 +87,21 @@ Vagrant.configure(2) do |config|
         v.memory  = 2048
         v.cpus    = 2
       end
-      print ip_address
+      print "name=#{name}"
+      print "Running Ansible provisioner for #{name}"
+      # Common configuration
+      node.vm.provision :ansible do |ansible|
+        ansible.playbook = "playbook.yml"
+        ansible.verbose = true
+        ansible.become = true
+        ansible.host_vars = {
+          "#{name}" => {
+            "IP_ADDRESS" => ip_address
+          }
+        }
+      end
+      
+      # Client configuration
       node.vm.provision :ansible do |ansible|
         ansible.playbook = "playbook-client.yml"
         ansible.verbose = true
