@@ -1,12 +1,22 @@
 # Vagrant
 
-This Vagrantfile uses Ansible to configure the created nodes. You can configure the amount of server and client nodes using the variables available in the Vagrantfile. 
+This Vagrantfile deploys user specified amount of server and client nodes, configuration is handled by `ansible_local`. Great for testing Consul and Nomad.
+
+**TODO**
+- Let user specify which services to deploy 
+  - Nomad
+  - Consul
+  - Vault
+- Create a Vagrant box that has Ansible installed already, since installing Ansible for each node is time consuming.
+
+**Tested on**
+- Linux (Pop_OS 2204)
+- Windows 11
 
 **Requirements**
 
 - Vagrant
 - VirtualBox 
-- Ansible
 
 **How to**
 
