@@ -21,6 +21,8 @@ vagrant_box_version = "3.6.14"
 vagrant_box_check_update = false 
 
 Vagrant.configure(2) do |config|
+  # I am manually syncing this folder as Vagrant apparently fails to do it automatically.
+  config.vm.synced_folder "./", "/vagrant"
   (1..server_node_count).each do |i|
     name = "server#{i}"
     fqdn = "#{name}.#{domain}"
@@ -40,8 +42,8 @@ Vagrant.configure(2) do |config|
       end
 
       # Common configuration
-      node.vm.provision :ansible do |ansible|
-        ansible.playbook = "playbook.yml"
+      node.vm.provision :ansible_local do |ansible|
+        ansible.playbook = "/vagrant/playbook.yml"
         ansible.verbose = true
         ansible.become = true
         ansible.host_vars = {
@@ -52,8 +54,8 @@ Vagrant.configure(2) do |config|
       end
 
       # Server configuration
-      node.vm.provision :ansible do |ansible|
-        ansible.playbook = "playbook-server.yml"
+      node.vm.provision :ansible_local do |ansible|
+        ansible.playbook = "/vagrant/playbook-server.yml"
         ansible.verbose = true
         ansible.become = true
         ansible.host_vars = {
@@ -87,11 +89,10 @@ Vagrant.configure(2) do |config|
         v.memory  = 2048
         v.cpus    = 2
       end
-      print "name=#{name}"
-      print "Running Ansible provisioner for #{name}"
+
       # Common configuration
       node.vm.provision :ansible do |ansible|
-        ansible.playbook = "playbook.yml"
+        ansible.playbook = "/vagrant/playbook.yml"
         ansible.verbose = true
         ansible.become = true
         ansible.host_vars = {
@@ -103,7 +104,7 @@ Vagrant.configure(2) do |config|
       
       # Client configuration
       node.vm.provision :ansible do |ansible|
-        ansible.playbook = "playbook-client.yml"
+        ansible.playbook = "/vagrant/playbook-client.yml"
         ansible.verbose = true
         ansible.become = true
         ansible.host_vars = {

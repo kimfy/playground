@@ -4,7 +4,7 @@
   tasks:
   - name: Configure Consul server settings
     ansible.builtin.template:
-      src: ../consul/server/etc/consul.d/server.hcl.j2
+      src: ./consul/server/etc/consul.d/server.hcl.j2
       dest: /etc/consul.d/server.hcl
       owner: root
       group: root
@@ -25,7 +25,7 @@
 
   - name: Configure Nomad server settings
     ansible.builtin.template:
-      src: ../nomad/server/etc/nomad.d/server.hcl.j2
+      src: ./nomad/server/etc/nomad.d/server.hcl.j2
       dest: /etc/nomad.d/server.hcl
       owner: root
       group: root
