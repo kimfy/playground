@@ -36,3 +36,24 @@
       state: restarted
       enabled: true
 
+  - name: Ensure HashiCorp Vault is installed
+    ansible.builtin.apt:
+      pkg:
+      - vault
+      state: present
+    when: VAULT_INSTALL == true
+
+  - name: Ensure Vault server configuration is copied over
+    ansible.builtin.template:
+      src: ./vault/server/etc/vault.d/vault.hcl.j2
+      dest: /etc/vault.d/vault.hcl
+      owner: root
+      group: root
+    when: VAULT_INSTALL == true
+
+  - name: Ensure Vault is enabled and restarted
+    ansible.builtin.service:
+      name: vault
+      state: restarted
+      enabled: true
+
