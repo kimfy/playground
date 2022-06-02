@@ -56,4 +56,5 @@
       name: vault
       state: restarted
       enabled: true
+    when: VAULT_INSTALL == true
 
