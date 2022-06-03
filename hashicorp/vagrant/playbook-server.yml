@@ -41,7 +41,7 @@
       pkg:
       - vault
       state: present
-    when: VAULT_INSTALL == true
+    when: VAULT_INSTALL == "yes"
 
   - name: Ensure Vault server configuration is copied over
     ansible.builtin.template:
@@ -49,12 +49,12 @@
       dest: /etc/vault.d/vault.hcl
       owner: root
       group: root
-    when: VAULT_INSTALL == true
+    when: VAULT_INSTALL == "yes"
 
   - name: Ensure Vault is enabled and restarted
     ansible.builtin.service:
       name: vault
       state: restarted
       enabled: true
-    when: VAULT_INSTALL == true
+    when: VAULT_INSTALL == "yes"
 

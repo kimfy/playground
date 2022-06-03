@@ -11,10 +11,10 @@ server_node_count = 3
 client_node_count = 0
 
 # Vault variables
-vault_install = false
+vault_install = "yes"
 
 # Consul variables
-consul_install = true
+consul_install = "yes"
 consul_internal_domain = "consul.#{domain}"
 
 ip_start_servers = "192.168.56.101"

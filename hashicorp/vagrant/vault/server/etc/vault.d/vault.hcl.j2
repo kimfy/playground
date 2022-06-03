@@ -4,7 +4,7 @@ ui = true
 
 #mlock = true
 #disable_mlock = true
-{% if CONSUL_INSTALL %}
+{% if CONSUL_INSTALL == "yes" %}
 storage "consul" {
   address = "{{ IP_ADDRESS }}:8500"
   path    = "vault"
