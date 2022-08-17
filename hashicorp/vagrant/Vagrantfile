@@ -7,7 +7,7 @@ ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
 domain = "hashicorp.lab.wwan.no"
 
-server_node_count = 3
+server_node_count = 1
 client_node_count = 0
 
 # Vault variables
